@@ -1,0 +1,160 @@
+<div class="page-main">
+  <div class="container">
+    <div class="page-header">
+      <div class="header-left">
+        <a routerLink="/products" class="back-btn">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Products
+        </a>
+        <h1>{{ isEdit ? 'Edit Product' : 'Add New Product' }}</h1>
+      </div>
+    </div>
+
+    @if (pageLoading) {
+      <div class="loading-container">
+        <div class="spinner spinner-dark" style="width:40px;height:40px;border-width:4px"></div>
+        <p>Loading product...</p>
+      </div>
+    } @else {
+      <div class="form-layout">
+        <div class="form-main">
+          <div class="card form-card">
+            <div class="card-header">
+              <h2>Product Information</h2>
+            </div>
+            <div class="card-body">
+              <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                  <label>Product Name *</label>
+                  <input type="text" formControlName="name" placeholder="e.g. Premium Wireless Headphones" [class.error]="f['name'].touched && f['name'].errors">
+                  @if (f['name'].touched && f['name'].errors) {
+                    <span class="error-msg">
+                      @if (f['name'].errors['required']) { Product name is required }
+                      @if (f['name'].errors['minlength']) { Name must be at least 2 characters }
+                    </span>
+                  }
+                </div>
+
+                <div class="form-group">
+                  <label>Description *</label>
+                  <textarea formControlName="description" placeholder="Describe your product in detail..." rows="4" [class.error]="f['description'].touched && f['description'].errors"></textarea>
+                  @if (f['description'].touched && f['description'].errors) {
+                    <span class="error-msg">
+                      @if (f['description'].errors['required']) { Description is required }
+                      @if (f['description'].errors['minlength']) { Description must be at least 10 characters }
+                    </span>
+                  }
+                </div>
+
+                <div class="form-row-3">
+                  <div class="form-group">
+                    <label>Price ($) *</label>
+                    <div class="input-prefix">
+                      <span class="prefix">$</span>
+                      <input type="number" formControlName="price" placeholder="0.00" min="0" step="0.01" [class.error]="f['price'].touched && f['price'].errors">
+                    </div>
+                    @if (f['price'].touched && f['price'].errors) {
+                      <span class="error-msg">Valid price required</span>
+                    }
+                  </div>
+
+                  <div class="form-group">
+                    <label>Category *</label>
+                    <select formControlName="category" [class.error]="f['category'].touched && f['category'].errors">
+                      <option value="">Select category</option>
+                      @for (cat of categories; track cat) {
+                        <option [value]="cat">{{ cat }}</option>
+                      }
+                    </select>
+                    @if (f['category'].touched && f['category'].errors) {
+                      <span class="error-msg">Category is required</span>
+                    }
+                  </div>
+
+                  <div class="form-group">
+                    <label>Stock Quantity *</label>   
+                    <input type="number" formControlName="stock" placeholder="0" min="0" [class.error]="f['stock'].touched && f['stock'].errors">
+                    @if (f['stock'].touched && f['stock'].errors) {
+                      <span class="error-msg">Valid stock required</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <a routerLink="/products" class="btn btn-secondary">Cancel</a>
+                  <button type="submit" class="btn btn-primary" [disabled]="loading">
+                    @if (loading) {
+                      <span class="spinner"></span>
+                      {{ isEdit ? 'Updating...' : 'Creating...' }}
+                    } @else {
+                      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        @if (isEdit) {
+                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        } @else {
+                          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                        }
+                      </svg>
+                      {{ isEdit ? 'Update Product' : 'Create Product' }}
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image Upload Sidebar -->
+        <div class="form-sidebar">
+          <div class="card form-card">
+            <div class="card-header">
+              <h2>Product Image</h2>
+            </div>
+            <div class="card-body">
+              @if (imagePreview || currentImage) {
+                <div class="image-preview">
+                  <img [src]="imagePreview || getImageUrl(currentImage)" alt="Preview">
+                  <button type="button" class="remove-image" (click)="removeImage()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              }
+
+              <label class="upload-area" [class.has-image]="imagePreview || currentImage" [class.processing]="imageProcessing">
+                <input type="file" accept="image/*" (change)="onFileChange($event)" [disabled]="imageProcessing" style="display:none">
+                @if (imageProcessing) {
+                  <div class="upload-placeholder">
+                    <div class="spinner spinner-dark" style="width:36px;height:36px;border-width:3px"></div>
+                    <p class="upload-title">Processing image...</p>
+                    <p class="upload-hint">Optimizing for faster upload</p>
+                  </div>
+                } @else if (!imagePreview && !currentImage) {
+                  <div class="upload-placeholder">
+                    <div class="upload-icon">
+                      <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </div>
+                    <p class="upload-title">Click to upload image</p>
+                    <p class="upload-hint">PNG, JPG, WEBP up to 5MB (auto-compressed)</p>
+                  </div>
+                } @else {
+                  <p class="change-image-text">Click to change image</p>
+                }
+              </label>
+            </div>
+          </div>
+
+          <div class="card tips-card">
+            <div class="card-body">
+              <h3>💡 Tips</h3>
+              <ul>
+                <li>Use clear, high-quality images</li>
+                <li>Write detailed descriptions</li>
+                <li>Set competitive prices</li>
+                <li>Keep stock updated</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,135 @@
+<div class="page-main">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>Order Management</h1>
+        <p class="subtitle">View and manage all customer orders</p>
+      </div>
+      <div class="header-actions">
+        <select class="filter-select" [(ngModel)]="selectedFilter" (change)="onFilterChange()">
+          <option value="all">All Orders</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="dispatched">Dispatched</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+        </select>
+        <a routerLink="/admin/dashboard" class="btn btn-secondary btn-sm">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="loading-container">
+        <div class="spinner spinner-dark" style="width:36px;height:36px;border-width:3px"></div>
+        <p>Loading orders...</p>
+      </div>
+    } @else if (orders.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No orders found</h3>
+        <p>No orders match the current filter</p>
+      </div>
+    } @else {
+      <div class="card table-card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of orders; track order._id) {
+                <tr [class.expanded-row]="expandedOrderId === order._id">
+                  <td>
+                    <span class="order-id-cell">#{{ order._id | slice:0:8 | uppercase }}</span>
+                  </td>
+                  <td>
+                    <div class="customer-cell">
+                      <span class="customer-name">{{ getUserName(order) }}</span>
+                      <span class="customer-email">{{ getUserEmail(order) }}</span>
+                    </div>
+                  </td>
+                  <td>{{ order.items.length }} item(s)</td>
+                  <td class="price-cell">${{ order.totalAmount | number:'1.2-2' }}</td>
+                  <td>{{ order.createdAt | date:'mediumDate' }}</td>
+                  <td>
+                    <span class="badge" [class]="statusClasses[order.status]">
+                      {{ statusLabels[order.status] }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-cell">
+                      <select class="status-select"
+                        [value]="order.status"
+                        [disabled]="updatingId === order._id"
+                        (change)="updateStatus(order, $any($event.target).value)">
+                        @for (s of statuses; track s) {
+                          <option [value]="s">{{ statusLabels[s] }}</option>
+                        }
+                      </select>
+                      @if (updatingId === order._id) {
+                        <span class="spinner spinner-dark" style="width:14px;height:14px;border-width:2px"></span>
+                      }
+                      <button class="btn-icon" (click)="toggleExpand(order._id)" [title]="expandedOrderId === order._id ? 'Collapse' : 'View Details'">
+                        <svg [class.rotated]="expandedOrderId === order._id" width="15" height="15"
+                          fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Expanded row -->
+                @if (expandedOrderId === order._id) {
+                  <tr class="detail-row">
+                    <td colspan="7">
+                      <div class="detail-panel">
+                        <div class="detail-grid">
+                          <div>
+                            <h4>Items</h4>
+                            <div class="detail-items">
+                              @for (item of order.items; track item.productId) {
+                                <div class="detail-item">
+                                  <img [src]="getImageUrl(item.image)" [alt]="item.name" class="detail-thumb">
+                                  <div class="detail-item-info">
+                                    <span class="detail-item-name">{{ item.name }}</span>
+                                    <span class="detail-item-sub">Qty: {{ item.quantity }} × ${{ item.price | number:'1.2-2' }}</span>
+                                  </div>
+                                  <span class="detail-item-total">${{ (item.price * item.quantity) | number:'1.2-2' }}</span>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                          <div>
+                            <h4>Shipping Address</h4>
+                            <div class="detail-address">
+                              <strong>{{ order.shippingAddress.fullName }}</strong>
+                              <span>{{ order.shippingAddress.phone }}</span>
+                              <span>{{ order.shippingAddress.street }}</span>
+                              <span>{{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} {{ order.shippingAddress.zip }}</span>
+                              <span>{{ order.shippingAddress.country }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,108 @@
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-left-content">
+      <div class="brand-logo">🛍️ ShopEase</div>
+      <h1>Join ShopEase Today!</h1>
+      <p>Create your account and start shopping from our huge collection of products.</p>
+      <div class="features">
+        <div class="feature">
+          <span class="feature-icon">🎁</span>
+          <span>Exclusive Deals</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">⭐</span>
+          <span>Top Rated Products</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">💳</span>
+          <span>Easy Payments</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Create Account</h2>
+        <p>Fill in your details to get started</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Full Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" formControlName="name" placeholder="John Doe" [class.error]="f['name'].touched && f['name'].errors">
+          </div>
+          @if (f['name'].touched && f['name'].errors) {
+            <span class="error-msg">
+              @if (f['name'].errors['required']) { Name is required }
+              @if (f['name'].errors['minlength']) { Name must be at least 2 characters }
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" formControlName="email" placeholder="you@example.com" [class.error]="f['email'].touched && f['email'].errors">
+          </div>
+          @if (f['email'].touched && f['email'].errors) {
+            <span class="error-msg">
+              @if (f['email'].errors['required']) { Email is required }
+              @if (f['email'].errors['email']) { Please enter a valid email }
+            </span>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="••••••" [class.error]="f['password'].touched && f['password'].errors">
+              <button type="button" class="toggle-password" (click)="showPassword=!showPassword">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            @if (f['password'].touched && f['password'].errors) {
+              <span class="error-msg">Min. 6 characters</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword" placeholder="••••••" [class.error]="f['confirmPassword'].touched && form.errors?.['passwordMismatch']">
+              <button type="button" class="toggle-password" (click)="showConfirmPassword=!showConfirmPassword">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            @if (f['confirmPassword'].touched && form.errors?.['passwordMismatch']) {
+              <span class="error-msg">Passwords do not match</span>
+            }
+          </div>
+        </div>
+
+
+
+        <button type="submit" class="btn btn-primary btn-lg submit-btn" [disabled]="loading">
+          @if (loading) {
+            <span class="spinner"></span> Creating account...
+          } @else {
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            Create Account
+          }
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        Already have an account?
+        <a routerLink="/login">Sign in here</a>
+      </p>
+    </div>
+  </div>
+</div>

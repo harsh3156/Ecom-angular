@@ -1,0 +1,129 @@
+<div class="home-page">
+  <!-- Hero Banner -->
+  <section class="hero-banner">
+    <div class="container hero-content">
+      <div class="hero-text">
+        <span class="hero-tag">🔥 New Collection 2024</span>
+        <h1>Shop The Best<br><span class="gradient-text">Products Online</span></h1>
+        <p>Discover thousands of amazing products at unbeatable prices. Quality guaranteed, fast delivery.</p>
+        <div class="hero-cta">
+          <a routerLink="/products" class="btn btn-primary btn-lg">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="7" height="7"/><rect x="15" y="3" width="7" height="7"/><rect x="15" y="15" width="7" height="7"/><rect x="2" y="15" width="7" height="7"/></svg>
+            Browse Products
+          </a>
+          @if (!authService.isLoggedIn()) {
+            <a routerLink="/register" class="btn btn-outline-white btn-lg">
+              Get Started Free
+            </a>
+          }
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-num">10K+</span><span class="stat-label">Products</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-num">50K+</span><span class="stat-label">Customers</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat"><span class="stat-num">4.9★</span><span class="stat-label">Rating</span></div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="hero-image-bg">
+          <span class="hero-emoji">🛍️</span>
+        </div>
+        <div class="floating-card card1">📦 Fast Delivery</div>
+        <div class="floating-card card2">⭐ Top Rated</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <div class="features-grid">
+        @for (feat of features; track feat.title) {
+          <div class="feature-card">
+            <div class="feature-icon">{{ feat.icon }}</div>
+            <div>
+              <h3>{{ feat.title }}</h3>
+              <p>{{ feat.desc }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="products-section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>Featured Products</h2>
+          <p>Hand-picked products just for you</p>
+        </div>
+        <a routerLink="/products" class="btn btn-outline">
+          View All
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+
+      @if (loading) {
+        <div class="loading-container">
+          <div class="spinner spinner-dark" style="width:36px;height:36px;border-width:3px"></div>
+          <p>Loading products...</p>
+        </div>
+      } @else if (featuredProducts.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">📦</div>
+          <h3>No products yet</h3>
+          <p>Check back later for amazing deals</p>
+          @if (authService.isAdmin()) {
+            <a routerLink="/products/add" class="btn btn-primary">Add First Product</a>
+          }
+        </div>
+      } @else {
+        <div class="products-grid">
+          @for (product of featuredProducts; track product._id) {
+            <div class="product-card" [routerLink]="['/products', product._id]">
+              <div class="product-image">
+                <img [src]="getImageUrl(product.image)" [alt]="product.name" loading="lazy">
+                @if (product.stock > 0) {
+                  <button class="quick-add-btn" (click)="addToCart(product, $event)" title="Add to cart">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.61L23 6H6"/></svg>
+                  </button>
+                }
+              </div>
+              <div class="product-info">
+                <span class="product-category">{{ product.category }}</span>
+                <h3 class="product-name">{{ product.name }}</h3>
+                <div class="product-footer">
+                  <div class="stars">
+                    @for (s of getStars(product.rating); track $index) {
+                      <span [class.filled]="s.filled">{{ s.filled ? '★' : '☆' }}</span>
+                    }
+                  </div>
+                  <span class="product-price">${{ product.price | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  @if (!authService.isLoggedIn()) {
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-card">
+          <h2>Ready to Start Shopping?</h2>
+          <p>Join thousands of happy customers today</p>
+          <div class="cta-buttons">
+            <a routerLink="/register" class="btn btn-primary btn-lg">Create Free Account</a>
+            <a routerLink="/login" class="btn btn-outline-white btn-lg">Sign In</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+</div>
